@@ -1,20 +1,48 @@
 'use client';
 
+import { showEvaluation } from '@/services/apiRequests';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaArrowLeft, FaChartBar, FaExclamationTriangle, FaCheckCircle, FaDollarSign, FaCube } from 'react-icons/fa';
+
+
+interface MolecularSideEffect {
+  molecule: string;
+  molecule_name: string;
+  ic50: number;
+  disease_name: string;
+  disease_pid: string,
+  disease_protien_name: string;
+  data_analysis_report: string;
+}
 
 export default function EvaluationResultsPage() {
   const searchParams = useSearchParams();
   const disease = searchParams.get('disease') || 'Unknown Disease';
+  const molecule_name = searchParams.get('molecule_name') || 'Unknown Molecule'
   const compound = searchParams.get('compound') || 'Selected Compound';
+  const targetName = searchParams.get('target')
   const [activeTab, setActiveTab] = useState('overview');
-  
+  const [loading, setLoading] = useState(true);
+  const [sideEffect, setSideEffect] = useState<MolecularSideEffect[]>([]);
+
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
+
+    useEffect(() => {
+      const fetchMolecules = async () => {
+        setLoading(true);
+        try {
+          const res = await showEvaluation(molecule_name);
+          setSideEffect(res.data);
+        } finally {
+          setLoading(false)
+        }
+      };
+      fetchMolecules();  }, [targetName]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -90,7 +118,7 @@ export default function EvaluationResultsPage() {
                 Moderate Risk
               </span>
             </div>
-            <div className="p-4">
+            {/* <div className="p-4">
               <div className="space-y-3">
                 <div className="flex items-center">
                   <div className="h-2 w-2 rounded-full bg-yellow-500 mr-2"></div>
@@ -107,14 +135,14 @@ export default function EvaluationResultsPage() {
                 <div className="flex items-center">
                   <div className="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
                   <span className="text-sm text-gray-700">No hepatotoxicity detected</span>
-                </div>
-                <div className="mt-3 pt-3 border-t border-gray-100">
+                </div> */}
+                {/* <div className="mt-3 pt-3 border-t border-gray-100">
                   <div className="text-xs text-gray-500">
                     Based on in-silico ADMET prediction models and structural similarity analysis
                   </div>
                 </div>
               </div>
-            </div>
+            </div> */}
           </motion.div>
 
           {/* Effectiveness Card */}

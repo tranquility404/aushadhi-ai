@@ -18,8 +18,8 @@ let Legend: any;
 
 interface IC50ChartProps {
   molecules: Array<{
-    name: string;
-    ic50Value: number;
+    disease_protien_name: string;
+    ic50: number;
   }>;
   title?: string;
 }
@@ -54,10 +54,10 @@ const IC50Chart: React.FC<IC50ChartProps> = ({ molecules, title = 'IC50 Values C
     initChart();
   }, []);
 
-  const sortedMolecules = [...molecules].sort((a, b) => a.ic50Value - b.ic50Value);
+  const sortedMolecules = [...molecules].sort((a, b) => a.ic50 - b.ic50);
   
-  const labels = sortedMolecules.map(molecule => molecule.name);
-  const ic50Values = sortedMolecules.map(molecule => molecule.ic50Value);
+  const labels = sortedMolecules.map(molecule => molecule.disease_protien_name);
+  const ic50Values = sortedMolecules.map(molecule => molecule.ic50);
   
   const backgroundColors = ic50Values.map(value => {
     if (value < 1) return 'rgba(34, 197, 94, 0.6)';

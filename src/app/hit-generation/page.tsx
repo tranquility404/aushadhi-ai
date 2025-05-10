@@ -1,26 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { findHits } from '@/services/apiRequests';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { FaArrowLeft, FaSort, FaDatabase, FaFlask, FaChartBar } from 'react-icons/fa';
-import MolecularStructureList from '../../components/molecular/MolecularStructureList';
-import SortingControls from '../../components/ui/SortingControls';
-import ChemBLIntegration from '../../components/molecular/ChemBLIntegration';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { FaArrowLeft, FaChartBar } from 'react-icons/fa';
 import IC50Chart from '../../components/charts/IC50Chart';
-import { findHits } from '@/services/apiRequests';
 
 interface MolecularHit {
-  // id: string;
-  // name: string;
-  // formula: string;
-  // ic50Value: number;
-  // structure: string;
-  // source: string;
-  // mechanism: string;
-  // targetProtein: string;
-
   molecule: string;
   molecule_name: string;
   ic50: number;
@@ -86,15 +74,14 @@ export default function HitGenerationPage() {
         <motion.div 
           initial={{ opacity: 0, y: -10 }} 
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+          className="mb-8">
           <Link href={`/results?disease=${encodeURIComponent(disease)}`} className="inline-flex items-center text-yellow-700 hover:text-yellow-900 transition-colors">
             <FaArrowLeft className="mr-2" />
             Back to Target Selection Results
           </Link>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }} 
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
@@ -119,33 +106,6 @@ export default function HitGenerationPage() {
               </div>
             ) : (
               <div className="space-y-8">
-                {/* Process visualization */}                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                  <h2 className="text-lg font-medium text-yellow-800 mb-3 flex items-center">
-                    <FaFlask className="mr-2" />
-                    Hit Generation Process
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                    <div className="bg-white p-3 rounded-md shadow-sm border border-yellow-100">
-                      <div className="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <FaFlask className="text-yellow-600" size={20} />
-                      </div>
-                      <p className="font-medium text-yellow-800">Fetch Molecular Structures</p>
-                    </div>
-                    <div className="bg-white p-3 rounded-md shadow-sm border border-yellow-100">
-                      <div className="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <FaSort className="text-yellow-600" size={20} />
-                      </div>
-                      <p className="font-medium text-yellow-800">Sort by IC50 Values</p>
-                    </div>
-                    <div className="bg-white p-3 rounded-md shadow-sm border border-yellow-100">
-                      <div className="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <FaDatabase className="text-yellow-600" size={20} />
-                      </div>
-                      <p className="font-medium text-yellow-800">Use ChemBL Database</p>
-                    </div>
-                  </div>
-                </div>
-                
                 {/* Sorting controls */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
                   <h2 className="text-xl font-semibold text-gray-800 mb-4 sm:mb-0">
@@ -181,7 +141,8 @@ export default function HitGenerationPage() {
                     </button>
                   </div>
                 </div>
-                  {/* IC50 Chart */}                <motion.div
+                  {/* IC50 Chart */}                
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
@@ -192,7 +153,7 @@ export default function HitGenerationPage() {
                       IC50 Values Comparison
                     </h3>
                     <div className="h-52 w-full overflow-hidden">
-                      {/* <IC50Chart molecules={sortedHits} title="" /> */}
+                      <IC50Chart molecules={sortedHits} title="" />
                     </div>
                     <div className="mt-2 text-xs text-gray-500 text-center">
                       Lower IC50 values indicate stronger binding affinity to the target protein
@@ -235,15 +196,16 @@ export default function HitGenerationPage() {
                           
                           <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
 
-                              <p className="text-sm font-mono mt-1 text-gray-500" >{hit.molecule}</p>
+                              <p className="text-sm font-mono mt-1 text-gray-500 " >{hit.molecule}</p>
                             <div className="col-span-2">
                               <span className="text-gray-500">Target Protein:</span>
                               <span className="ml-1 font-medium text-gray-700">{hit.disease_protien_name}</span>
                             </div>
                           </div>
                           
-                          <div className="mt-4 flex space-x-2">                            <Link
-                              href={`/evaluation-results?disease=${encodeURIComponent(disease)}&compound=${encodeURIComponent(hit.m)}`}
+                          <div className="mt-4 flex space-x-2">                            
+                            <Link
+                              href={`/evaluation-results?disease=${encodeURIComponent(disease)}&compound=${encodeURIComponent(hit.molecule)}`}
                               className="text-xs px-3 py-1 bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors"
                             >
                               View Evaluation
@@ -253,39 +215,6 @@ export default function HitGenerationPage() {
                       </div>
                     </motion.div>
                   ))}
-                </div>
-                
-                {/* ChemBL Database integration section */}
-                <div className="mt-10 bg-blue-50 p-5 rounded-lg border border-blue-100">
-                  <h2 className="text-lg font-medium text-blue-800 mb-4 flex items-center">
-                    <FaDatabase className="mr-2" />
-                    ChemBL Database Integration
-                  </h2>
-                  <p className="text-blue-700 mb-4">
-                    Access additional data from ChemBL database to enrich your hit analysis with bioactivity data, binding profiles, and related compounds.
-                  </p>                  <div className="flex flex-wrap gap-3">
-                    <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm">
-                      Search ChemBL
-                    </button>
-                    <button className="px-4 py-2 bg-white text-blue-700 border border-blue-300 rounded-md hover:bg-blue-50 transition-colors shadow-sm">
-                      Import Structures
-                    </button>
-                    <button className="px-4 py-2 bg-white text-blue-700 border border-blue-300 rounded-md hover:bg-blue-50 transition-colors shadow-sm">
-                      Compare Binding Data
-                    </button>
-                  </div>
-                  
-                  <div className="mt-6 pt-4 border-t border-blue-200">
-                    <Link
-                      href={`/evaluation-results?disease=${encodeURIComponent(disease)}&compound=All+Compounds`}
-                      className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-md"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clipRule="evenodd" />
-                      </svg>
-                      Generate Comprehensive Evaluation Report
-                    </Link>
-                  </div>
                 </div>
               </div>
             )}
