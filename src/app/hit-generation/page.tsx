@@ -10,11 +10,12 @@ import IC50Chart from '../../components/charts/IC50Chart';
 
 interface MolecularHit {
   molecule: string;
-  molecule_name: string;
+  canonical_smiles: string;
   ic50: number;
   disease_name: string;
   disease_pid: string,
   disease_protien_name: string;
+  molecule_image: string;
 }
 
 export default function HitGenerationPage() {
@@ -28,11 +29,12 @@ export default function HitGenerationPage() {
   const [sortedHits, setSortedHits] = useState<MolecularHit[]>([]);
   const [sortBy, setSortBy] = useState<'ic50' | 'name'>('ic50');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
   useEffect(() => {
     const fetchMolecules = async () => {
       setLoading(true);
       try {
-        const res = await findHits(disease);
+        const res = await findHits(targetId);
         setHits(res.data);
       } finally {
         setLoading(false)
@@ -141,25 +143,6 @@ export default function HitGenerationPage() {
                     </button>
                   </div>
                 </div>
-                  {/* IC50 Chart */}                
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="mb-8"
-                >                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                      <FaChartBar className="mr-2 text-yellow-600" />
-                      IC50 Values Comparison
-                    </h3>
-                    <div className="h-52 w-full overflow-hidden">
-                      <IC50Chart molecules={sortedHits} title="" />
-                    </div>
-                    <div className="mt-2 text-xs text-gray-500 text-center">
-                      Lower IC50 values indicate stronger binding affinity to the target protein
-                    </div>
-                  </div>
-                </motion.div>
 
                 {/* List of molecular hits */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -175,14 +158,14 @@ export default function HitGenerationPage() {
                         <div className="md:w-1/3 flex justify-center items-start mb-4 md:mb-0">
                           {/* Molecular structure image */}
                           <img 
-                            src={hit.molecule} 
+                            src={`data:image/png;base64,${hit.molecule_image}`} 
                             alt={`Structure of ${hit.disease_name}`}
                             className="h-40 w-40 object-contain bg-white rounded-lg border border-gray-200"
                           />
                         </div>
                         <div className="md:w-2/3 md:pl-4">
                           <div className="flex justify-between items-start">
-                            <h3 className="text-lg font-semibold text-gray-800 mr-4" style={{textOverflow: "ellipses", overflow: "hidden", whiteSpace: "nowrap"}}>{hit.molecule_name}</h3>
+                            {/* <h3 className="text-lg font-semibold text-gray-800 mr-4" style={{textOverflow: "ellipses", overflow: "hidden", whiteSpace: "nowrap"}}>{hit.canonical_smiles}</h3> */}
                             <span className={`px-2 py-1 text-xs font-medium rounded-full w-70 ${
                               hit.ic50 < 1 
                               ? 'bg-green-100 text-green-800' 
@@ -196,19 +179,19 @@ export default function HitGenerationPage() {
                           
                           <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
 
-                              <p className="text-sm font-mono mt-1 text-gray-500 " >{hit.molecule}</p>
+                              {/* <p className="text-sm font-mono mt-1 text-gray-500 " >{hit.ca}</p> */}
                             <div className="col-span-2">
                               <span className="text-gray-500">Target Protein:</span>
-                              <span className="ml-1 font-medium text-gray-700">{hit.disease_protien_name}</span>
+                              <span className="ml-1 font-medium text-gray-700">{targetId}</span>
                             </div>
                           </div>
                           
-                          <div className="mt-4 flex space-x-2">                            
+                          <div className="flex space-x-2 mt-8">                            
                             <Link
-                              href={`/evaluation-results?disease=${encodeURIComponent(disease)}&compound=${encodeURIComponent(hit.molecule)}`}
-                              className="text-xs px-3 py-1 bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors"
+                              href={`/alternate-structures?disease=${encodeURIComponent(disease)}&compound=${encodeURIComponent(hit.molecule)}`}
+                              className="text-xs py-2 px-3 bg-yellow-50 text-yellow-900 rounded-full hover:bg-blue-100 transition-colors"
                             >
-                              View Evaluation
+                              Generate Improved Compound
                             </Link>
                           </div>
                         </div>
